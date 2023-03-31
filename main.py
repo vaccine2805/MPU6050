@@ -20,7 +20,11 @@ attz = []
 rttx = []
 rtty = []
 rttz = []
-figure, axis = plt.subplots(3, 2)
+
+# Create two separate figure objects and their respective axes
+fig1, axes1 = plt.subplots(3, 1)
+fig2, axes2 = plt.subplots(3, 1)
+
 def animate(i, attx, atty, attz, rttx, rtty, rttz):
     b = ser.readline()
     str1 = b.decode('UTF-8')
@@ -36,7 +40,7 @@ def animate(i, attx, atty, attz, rttx, rtty, rttz):
         rtty.append(float(rtt[1]))
         rttz.append(float(rtt[2]))
 
-#เอาค่าแค่20ตัวนับจากหลังมาหน้า
+        # Keep only the last 20 values in each list
         attx = attx[-20:]
         atty = atty[-20:]
         attz = attz[-20:]
@@ -44,44 +48,36 @@ def animate(i, attx, atty, attz, rttx, rtty, rttz):
         rtty = rtty[-20:]
         rttz = rttz[-20:]
 
-        # print(att)
-        # print(rtt)
-        # print(lst[2])
+    # Clear the previous plot and plot the new data
+    axes1[0].clear()
+    axes1[0].plot(attx)
+    axes1[0].set_title("Accelerometer X")
 
+    axes1[1].clear()
+    axes1[1].plot(atty)
+    axes1[1].set_title("Accelerometer Y")
 
+    axes1[2].clear()
+    axes1[2].plot(attz)
+    axes1[2].set_title("Accelerometer Z")
 
-    # ax.clear()
+    axes2[0].clear()
+    axes2[0].plot(rttx)
+    axes2[0].set_title("Rotation X")
 
-    # For Sine Function
-    axis[0, 0].clear()
-    axis[0, 0].plot(attx)
-    axis[0, 0].set_title("Accelerometer X")
+    axes2[1].clear()
+    axes2[1].plot(rtty)
+    axes2[1].set_title("Rotation Y")
 
-    # For Cosine Function
-    axis[1, 0].clear()
-    axis[1, 0].plot(atty)
-    axis[1, 0].set_title("Accelerometer Y")
+    axes2[2].clear()
+    axes2[2].plot(rttz)
+    axes2[2].set_title("Rotation Z")
 
-    # # For Cosine Function
-    axis[2, 0].clear()
-    axis[2, 0].plot(attz)
-    axis[2, 0].set_title("Accelerometer Z")
+# Call the animate() function for each figure using FuncAnimation()
+ani1 = animation.FuncAnimation(fig1, animate, fargs=(attx, atty, attz, rttx, rtty, rttz), interval=10)
+ani2 = animation.FuncAnimation(fig2, animate, fargs=(attx, atty, attz, rttx, rtty, rttz), interval=10)
 
-    # For Cosine Function
-    axis[0, 1].clear()
-    axis[0, 1].plot(rttx)
-    axis[0, 1].set_title("Rotation X")
-
-    # For Cosine Function
-    axis[1, 1].clear()
-    axis[1, 1].plot(rtty)
-    axis[1, 1].set_title("Rotation y")
-
-    axis[2, 1].clear()
-    axis[2, 1].plot(rttz)
-    axis[2, 1].set_title("Rotation z")
-
-ani = animation.FuncAnimation(figure, animate, fargs=(attx, atty, attz, rttx, rtty, rttz), interval=10)
-plt.show()
-# print("Attx: ", attx)
-# print("Atty: ", atty)
+# Display the plots in separate windows
+plt.show(block=False)
+fig1.canvas.manager.window.move(0, 0)
+fig2.canvas.manager.window.move(800, 0)
