@@ -27,18 +27,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rtty = []
         self.rttz = []
 
-        self.graphWidget = pg.PlotWidget()
+        self.graphWidget = pg.PlotWidget(self)
         self.graphWidget.setTitle("Accelerometer X")
-        self.graphWidget2 = pg.PlotWidget()
+        # self.graphWidget.setYRange(-1,1)
+        self.graphWidget.showGrid(x=True, y=True)
+        self.graphWidget2 = pg.PlotWidget(self)
         self.graphWidget2.setTitle("Accelerometer Y")
-        self.graphWidget3 = pg.PlotWidget()
+        self.graphWidget2.showGrid(x=True, y=True)
+        # self.graphWidget2.setYRange(-1, 1)
+        self.graphWidget3 = pg.PlotWidget(self)
         self.graphWidget3.setTitle("Accelerometer Z")
-        self.graphWidget4 = pg.PlotWidget()
+        self.graphWidget3.showGrid(x=True, y=True)
+        self.graphWidget4 = pg.PlotWidget(self)
         self.graphWidget4.setTitle("Rotation X")
-        self.graphWidget5 = pg.PlotWidget()
+        self.graphWidget4.showGrid(x=True, y=True)
+        self.graphWidget5 = pg.PlotWidget(self)
         self.graphWidget5.setTitle("Rotation Y")
-        self.graphWidget6 = pg.PlotWidget()
+        self.graphWidget5.showGrid(x=True, y=True)
+        self.graphWidget6 = pg.PlotWidget(self)
         self.graphWidget6.setTitle("Rotation Z")
+        self.graphWidget6.showGrid(x=True, y=True)
+
 
         self.x = list(range(20))  # 100 time points
         self.attx = [randint(0, 0) for _ in range(20)]  # 100 data points
@@ -69,6 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.data_line5 = self.graphWidget5.plot(self.x, self.rtty, pen=pen5)
         self.data_line6 = self.graphWidget6.plot(self.x, self.rttz, pen=pen6)
 
+
         layout = QtWidgets.QGridLayout()
         layout.addWidget(self.graphWidget, 0, 0)
         layout.addWidget(self.graphWidget2, 1, 0)
@@ -80,6 +90,8 @@ class MainWindow(QtWidgets.QMainWindow):
         centralWidget = QtWidgets.QWidget()
         centralWidget.setLayout(layout)
         self.setCentralWidget(centralWidget)
+
+        self.resize(800, 600)
 
         self.timer = QtCore.QTimer()
         self.timer.setInterval(50)
