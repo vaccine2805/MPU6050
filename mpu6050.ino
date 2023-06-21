@@ -1,10 +1,7 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
-int led1 = 4;
-int led2 = 5;
-float oldRttx = 0.0;
-unsigned long startTime = 0;
+
 
 Adafruit_MPU6050 mpu;
 
