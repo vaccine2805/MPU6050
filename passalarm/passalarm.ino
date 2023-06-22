@@ -3,37 +3,34 @@
 #include <SoftwareSerial.h>
 #include <Wire.h>
 
-// HC-12 settings
-SoftwareSerial hc12Serial(10, 11);  // HC-12 module connected to Arduino pins 10 (RX) and 11 (TX)
-
-unsigned long period = 1000; // Time interval to wait
-unsigned long last_time = 0; // Global variable to store the last time
-unsigned long check = 1000; // Reset check interval
+unsigned long period = 1000; //ระยะเวลาที่ต้องการรอ
+unsigned long last_time = 0; //ประกาศตัวแปรเป็น global เพื่อเก็บค่าไว้ไม่ให้ reset จากการวนloop
+unsigned long check = 1000; //ระยะเวลารอReset
 unsigned long reset_time = 0;
+
 
 int but1 = 5;
 int ad = 0;
 int led1 = 2;
-int led2 = 3;
 int rs = 0;
 int buttonstate = 0;
-bool StatusAlert = false;
+int bz = 3;
+int sta = 0;
+int StatusAlert = 0;
 Adafruit_MPU6050 mpu;
 
 void setup() {
-  Serial.begin(9600);
-  hc12Serial.begin(9600);  // HC-12 module baud rate
-
+  Serial.begin(115200);
   pinMode(led1, OUTPUT);
-  pinMode(led2, OUTPUT);
+  pinMode(bz, OUTPUT);
   pinMode(but1, INPUT);
 
   while (!Serial)
-    delay(10); // Pause until the serial console opens
+    delay(10); // will pause Zero, Leonardo, etc until serial console opens
 
   Serial.println("Adafruit MPU6050 test!");
 
-  // Try to initialize MPU6050
+  // Try to initialize!
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
@@ -106,54 +103,50 @@ void loop() {
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
   float rttx = g.gyro.x;
-  
   if (StatusAlert == false) {
-    if (millis() - last_time >= period) { // Execute every 1 second
-      if (rttx >= -0.05 && rttx <= 0.00) { // Check if rttx is within the specified range
+    if ( millis() - last_time >= period) { // ทำงานทุก 1 วิ
+      if (rttx >= -0.05 && rttx <= 0.03) { // เช็กหากว่า rttx อยู่ใน range ให้นับ 1
         ad++;
       }
-      else {
+      else { // หากมีการขยับตัวโดยที่ยังไม่ครบ 30 วิ ให้เคลียค่า
         ad = 0;
       }
-      last_time = millis(); // Save the current time
+//            Serial.println(rttx);
+//            Serial.println(ad);
+      last_time = millis(); //เซฟเวลาปัจจุบันไว้เพื่อรอจนกว่า millis() จะมากกว่าตัวมันเท่า period
     }
-    
-    if (ad >= 30) {
+    if (ad >= 30) { // เมื่อนิ่งเกิน 30 วินาที ให้ Interrupt
+      //function Interrupt
       StatusAlert = true;
-      Serial.println("Alert");
+//      Serial.println("Alert");
       digitalWrite(led1, HIGH);
-      digitalWrite(led2, HIGH);
-      hc12Serial.println("Alert");  // Transmit "Alert" via HC-12
+      digitalWrite(bz, HIGH);
     }
   }
 
   if (digitalRead(but1) == 1) {
-    if (StatusAlert == false) {
-      StatusAlert = true;
+    if (StatusAlert == 0) {
+      StatusAlert = 1;
       digitalWrite(led1, HIGH);
-      digitalWrite(led2, HIGH);
-      hc12Serial.println("Alert");  // Transmit "Alert" via HC-12
+      digitalWrite(bz, HIGH);
+//            Serial.println("Alert");
     }
     else {
-      if (millis() - reset_time >= check) {
+      if ( millis() - reset_time >= check) {
         rs++;
         reset_time = millis();
+//                Serial.println(rs);
       }
       if (rs >= 5) {
-        StatusAlert = false;
+        StatusAlert = 0;
         ad = 0;
         digitalWrite(led1, LOW);
-        digitalWrite(led2, LOW);
+        digitalWrite(bz, LOW);
         Serial.println("Reset");
-        hc12Serial.println("Reset");  // Transmit "Reset" via HC-12
         rs = 0;
         delay(1000);
       }
     }
   }
-  
-  // Transmit accelerometer and gyroscope data via HC-12
-  String data = String(a.acceleration.x) + "," + String(a.acceleration.y) + "," + String(a.acceleration.z) + "|" + String(g.gyro.x) + "," + String(g.gyro.y) + "," + String(g.gyro.z);
-  hc12Serial.println(data);
-  Serial.println(data);
-}
+  Serial.println(String(a.acceleration.x) + "," + String(a.acceleration.y) + "," +String(a.acceleration.z) + "|" + String(g.gyro.x) + "," + String(g.gyro.y) + "," + String(g.gyro.z)+ "|" + String(StatusAlert));
+} 
