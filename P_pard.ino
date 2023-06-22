@@ -2,16 +2,10 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
-float  arrx[30];
-int i = 0;
-float Val_Ac = 0;
-float i_count_Ave = 0;
-
 Adafruit_MPU6050 mpu;
 
 void setup(void) {
   Serial.begin(115200);
-  pinMode(LED_BUILTIN, OUTPUT);
   while (!Serial)
     delay(10); // will pause Zero, Leonardo, etc until serial console opens
 
@@ -90,53 +84,7 @@ void loop() {
   /* Get new sensor events with the readings */
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
-  if (i > 29) {
-    i = 0;
-    Serial.println( "i == 0" );
-  }
-  else
-  {
-    Serial.print("i = ");
-    Serial.print(i);
-    Serial.print("  ==> ");
-    arrx[i] = float(g.gyro.x);
-    Serial.println(arrx[i]);
-    i = i + 1;
-
-    for (int i_count = 0; i_count < 30; i_count ++ )
-    {
-      Val_Ac = Val_Ac +  arrx[i_count];
-      Serial.print("Val_Ac = ");
-      Serial.println(Val_Ac);
-    }
-    i_count_Ave = Val_Ac / 30;
-    Serial.print("i_count_Ave = ");
-    Serial.println(i_count_Ave);
-
-//    if ((- 0.05 > i_count_Ave ) && (0.05 < i_count_Ave )) 
-    
-    if ((- 0.03 == i_count_Ave )) 
-    {
-      digitalWrite(LED_BUILTIN, HIGH);
-      Serial.println("LED : ON ///////////////////////////////////");
-      delay(10);
-    }
-    else
-    {
-      digitalWrite(LED_BUILTIN, LOW);
-      Serial.println("LED : OFF ");
-      delay(10);
-    }
-
-    Val_Ac = 0;
-    Serial.print("Val_Ac Reset = ");
-    Serial.println(Val_Ac);
-    i_count_Ave = 0;
-    Serial.print("i_count_Ave Reset = ");
-    Serial.println(i_count_Ave);
-
-
-  }
-  //Serial.println(String(a.acceleration.x) + "," + String(a.acceleration.y) + "," + String(a.acceleration.z) + "|" + String(g.gyro.x) + "," + String(g.gyro.y) + "," + String(g.gyro.z));
+  
+  Serial.println(String(a.acceleration.x) + "," + String(a.acceleration.y) + "," + String(a.acceleration.z) + "|" + String(g.gyro.x) + "," + String(g.gyro.y) + "," + String(g.gyro.z));
   delay(1);
 }
